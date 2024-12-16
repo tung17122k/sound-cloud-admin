@@ -1,0 +1,39 @@
+/* table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+} */
+ .flex{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  button{
+    padding: 10px 20px;
+    background-color: #1d5568;
+    cursor: pointer;
+    outline: none;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    transition: all 0.5 ease-in;
+
+    
+  }
+  button:hover{
+      background-color: white;
+      color: #1d5568;
+      border: 1px solid #ccc;
+      transition: all 0.5 ease-in;
+  }
+  
+ }
