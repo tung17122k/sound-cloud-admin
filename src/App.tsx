@@ -1,13 +1,8 @@
-import { useState } from 'react'
 
-const MyFirstComponent = () => {
 
-  return (
-    <></>
-  )
-}
 
 function App() {
+
 
   return (
     <>
