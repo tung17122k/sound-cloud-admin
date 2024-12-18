@@ -1,4 +1,4 @@
-import { Input, Modal, notification } from "antd";
+import { Input, Modal, notification, Form, Radio, InputNumber, Select, FormProps } from "antd";
 import { useEffect, useState } from "react";
 import { IUsers } from "./users.table";
 
@@ -15,45 +15,48 @@ interface IProps {
 
 const CreateUserModal = (props: IProps) => {
     const { access_token, getData, isUpdateModalOpen, setIsUpdateModalOpen, dataUpdate, setDataUpdate } = props;
-    const [name, setName] = useState("");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [age, setAge] = useState("");
-    const [gender, setGender] = useState("");
-    const [address, setAddress] = useState("");
-    const [role, setRole] = useState("");
+    const [form] = Form.useForm();
+
+
 
 
     useEffect(() => {
         if (dataUpdate) {
-            setName(dataUpdate.name);
-            setEmail(dataUpdate.email);
-            setAddress(dataUpdate.address);
-            setAge(dataUpdate.age)
-            setRole(dataUpdate.role);
-            setGender(dataUpdate.gender);
-            setPassword(dataUpdate.password);
+            form.setFieldsValue({
+                name: dataUpdate.name,
+                email: dataUpdate.email,
+                age: dataUpdate.age,
+                address: dataUpdate.address,
+                password: dataUpdate.password,
+                role: dataUpdate.role,
+                gender: dataUpdate.gender
+            })
         }
     }, [dataUpdate])
 
 
 
-    const handleOk = async () => {
+
+
+    const handleCloseCreateModal = () => {
+        setIsUpdateModalOpen(false);
+        form.resetFields();
+        setDataUpdate(null);
+    }
+
+
+    const onFinish: FormProps['onFinish'] = async (values) => {
+        // lay data
+
+        const { name, email, password, age, gender, address, role } = values;
+
+        // gui data len sever
         if (dataUpdate) {
-
-
-
             const data = {
                 _id: dataUpdate._id,
-                name,
-                email,
-                password,
-                age,
-                gender,
-                address,
-                role
-
+                name, email, password, age, gender, address, role
             }
+            // goi api update
             const res = await fetch("http://localhost:8000/api/v1/users", {
                 method: "PATCH",
                 headers: {
@@ -79,20 +82,13 @@ const CreateUserModal = (props: IProps) => {
                 })
             }
         }
+
+
     };
 
-    const handleCloseCreateModal = () => {
-        setIsUpdateModalOpen(false);
-        setName("");
-        setEmail("");
-        setAddress("");
-        setAge("");
-        setRole("");
-        setGender("");
-        setPassword("");
-        setDataUpdate(null);
-    }
-
+    const onFinishFailed: FormProps['onFinishFailed'] = (errorInfo) => {
+        console.log('Failed:', errorInfo);
+    };
 
 
 
@@ -100,38 +96,76 @@ const CreateUserModal = (props: IProps) => {
     return (
         <Modal title="Update user"
             open={isUpdateModalOpen}
-            onOk={handleOk}
+            onOk={() => form.submit()}
             onCancel={() => handleCloseCreateModal()}
             maskClosable={false}
         >
-            <div>
-                <label htmlFor="">Name:</label>
-                <Input value={name} onChange={(e) => setName(e.target.value)} />
-            </div>
-            <div>
-                <label htmlFor="">Email:</label>
-                <Input value={email} onChange={(e) => setEmail(e.target.value)} />
-            </div>
-            <div>
-                <label htmlFor="">Password:</label>
-                <Input disabled value={password} onChange={(e) => setPassword(e.target.value)} />
-            </div>
-            <div>
-                <label htmlFor="">Age:</label>
-                <Input value={age} onChange={(e) => setAge(e.target.value)} />
-            </div>
-            <div>
-                <label htmlFor="">Gender:</label>
-                <Input value={gender} onChange={(e) => setGender(e.target.value)} />
-            </div>
-            <div>
-                <label htmlFor="">Address:</label>
-                <Input value={address} onChange={(e) => setAddress(e.target.value)} />
-            </div>
-            <div>
-                <label htmlFor="">Role:</label>
-                <Input value={role} onChange={(e) => setRole(e.target.value)} />
-            </div>
+            <Form
+                name="basic"
+                onFinish={onFinish}
+                onFinishFailed={onFinishFailed}
+                layout="vertical"
+                form={form}
+            >
+                <Form.Item
+                    label="Name"
+                    name="name"
+                    rules={[{ required: true, message: 'Please input your username!' }]}
+                >
+                    <Input />
+                </Form.Item>
+
+                <Form.Item
+
+                    label="Password"
+                    name="password"
+                    rules={[{ required: dataUpdate ? false : true, message: 'Please input your password!' }]}
+                >
+                    <Input.Password disabled={dataUpdate ? true : false} />
+                </Form.Item>
+
+                <Form.Item
+                    label="Email"
+                    name="email"
+                    rules={[{ required: true, message: 'Please input your email!', type: 'email' }]}
+
+                >
+                    <Input />
+                </Form.Item>
+                <Form.Item label="Giới tính" name="gender" initialValue="male">
+                    <Radio.Group>
+                        <Radio value="MALE"> Nam </Radio>
+                        <Radio value="FEMALE"> Nữ </Radio>
+                    </Radio.Group>
+                </Form.Item>
+
+                <Form.Item
+                    label="Age"
+                    name="age"
+                    rules={[{ required: true, message: 'Please input your age!' }]}
+
+                >
+                    <InputNumber style={{ width: "100%" }} />
+                </Form.Item>
+
+                <Form.Item
+                    label="Address"
+                    name="address"
+                    rules={[{ required: true, message: 'Please input your Address!' }]}
+                >
+                    <Input.TextArea />
+                </Form.Item>
+
+                <Form.Item label="Role" name="role">
+                    <Select>
+                        <Select.Option value="ADMIN">ADMIN</Select.Option>
+                        <Select.Option value="USER">USER</Select.Option>
+                    </Select>
+                </Form.Item>
+
+
+
+            </Form>
         </Modal>
     )
 }

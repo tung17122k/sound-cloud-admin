@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import '../../styles/users.scss'
-import { Table, Modal, Input, notification, Button, Popconfirm, message } from 'antd';
+import { Table, notification, Button, Popconfirm, } from 'antd';
 import type { ColumnsType } from 'antd/es/table'
 import CreateUserModal from './create.user.modal';
 import UpdateUserModal from './update.user.modal';
@@ -38,14 +38,96 @@ const UsersTable = () => {
 
   const access_token = localStorage.getItem("access_token") as string; // ép kiểu dữ liệu
 
-
-
   useEffect(() => {
     getData();
-
-
   }, [])
 
+
+  // get data
+  const getData = async () => {
+    const res = await fetch(`http://localhost:8000/api/v1/users?current=${meta.current}&pageSize=${meta.pageSize}`, {
+      method: "GET",
+      headers: {
+        'Authorization': `Bearer ${access_token}`,
+        "Content-Type": "application/json",
+      },
+    })
+
+    const d = await res.json();
+    console.log(d);
+
+    if (!d.data) {
+      notification.error({
+        message: d.message
+      })
+    }
+    setListUsers(d.data.result);
+    setLoading(false);
+    setMeta({
+      current: d.data.meta.current,
+      pageSize: d.data.meta.pageSize,
+      pages: d.data.meta.pages,
+      total: d.data.meta.total
+    })
+
+  }
+
+
+
+  // confirm delete table
+  const confirm = async (user: IUsers) => {
+    const res = await fetch(`http://localhost:8000/api/v1/users/${user._id}`, {
+      method: "DELETE",
+      headers: {
+        'Authorization': `Bearer ${access_token}`,
+        "Content-Type": "application/json",
+      },
+    })
+    const d = await res.json();
+    if (d.data) {
+      notification.success({
+        message: "Xóa user thành công!"
+      })
+      getData();
+    } else {
+      notification.error({
+        message: JSON.stringify(d.message)
+      })
+    }
+
+  };
+
+  // pagination
+  const handleOnChange = async (page: number, pageSize: number) => {
+    console.log(page, pageSize);
+
+    const res = await fetch(`http://localhost:8000/api/v1/users?current=${page}&pageSize=${pageSize}`, {
+      method: "GET",
+      headers: {
+        'Authorization': `Bearer ${access_token}`,
+        "Content-Type": "application/json",
+      },
+    })
+    const d = await res.json();
+    console.log(d);
+
+    if (!d.data) {
+      notification.error({
+        message: d.message
+      })
+    }
+    setListUsers(d.data.result);
+    setLoading(false);
+    setMeta({
+      current: d.data.meta.current,
+      pageSize: d.data.meta.pageSize,
+      pages: d.data.meta.pages,
+      total: d.data.meta.total
+    })
+
+  }
+
+  // table
   const columns: ColumnsType<IUsers> = [
     {
       title: 'Email',
@@ -100,94 +182,11 @@ const UsersTable = () => {
                 Delete
               </Button>
             </Popconfirm>
-
-
           </>
         )
       }
     },
   ];
-  const confirm = async (user: IUsers) => {
-    const res = await fetch(`http://localhost:8000/api/v1/users/${user._id}`, {
-      method: "DELETE",
-      headers: {
-        'Authorization': `Bearer ${access_token}`,
-        "Content-Type": "application/json",
-      },
-    })
-    const d = await res.json();
-    if (d.data) {
-      notification.success({
-        message: "Xóa user thành công!"
-      })
-      getData();
-    } else {
-      notification.error({
-        message: JSON.stringify(d.message)
-      })
-    }
-
-  };
-
-
-  const getData = async () => {
-    const res = await fetch(`http://localhost:8000/api/v1/users?current=${meta.current}&pageSize=${meta.pageSize}`, {
-      method: "GET",
-      headers: {
-        'Authorization': `Bearer ${access_token}`,
-        "Content-Type": "application/json",
-      },
-    })
-
-    const d = await res.json();
-    console.log(d);
-
-    if (!d.data) {
-      notification.error({
-        message: d.message
-      })
-    }
-    setListUsers(d.data.result);
-    setLoading(false);
-    setMeta({
-      current: d.data.meta.current,
-      pageSize: d.data.meta.pageSize,
-      pages: d.data.meta.pages,
-      total: d.data.meta.total
-    })
-
-  }
-
-
-  const handleOnChange = async (page: number, pageSize: number) => {
-    console.log(page, pageSize);
-
-    const res = await fetch(`http://localhost:8000/api/v1/users?current=${page}&pageSize=${pageSize}`, {
-      method: "GET",
-      headers: {
-        'Authorization': `Bearer ${access_token}`,
-        "Content-Type": "application/json",
-      },
-    })
-    const d = await res.json();
-    console.log(d);
-
-    if (!d.data) {
-      notification.error({
-        message: d.message
-      })
-    }
-    setListUsers(d.data.result);
-    setLoading(false);
-    setMeta({
-      current: d.data.meta.current,
-      pageSize: d.data.meta.pageSize,
-      pages: d.data.meta.pages,
-      total: d.data.meta.total
-    })
-
-  }
-
 
   return (
     <div>
@@ -210,7 +209,6 @@ const UsersTable = () => {
           showSizeChanger: true
 
         }}
-
       />
 
       <CreateUserModal
