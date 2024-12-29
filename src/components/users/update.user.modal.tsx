@@ -17,9 +17,6 @@ const CreateUserModal = (props: IProps) => {
     const { access_token, getData, isUpdateModalOpen, setIsUpdateModalOpen, dataUpdate, setDataUpdate } = props;
     const [form] = Form.useForm();
 
-
-
-
     useEffect(() => {
         if (dataUpdate) {
             form.setFieldsValue({
@@ -35,9 +32,6 @@ const CreateUserModal = (props: IProps) => {
     }, [dataUpdate])
 
 
-
-
-
     const handleCloseCreateModal = () => {
         setIsUpdateModalOpen(false);
         form.resetFields();
@@ -46,8 +40,8 @@ const CreateUserModal = (props: IProps) => {
 
 
     const onFinish: FormProps['onFinish'] = async (values) => {
-        // lay data
 
+        // lay data
         const { name, email, password, age, gender, address, role } = values;
 
         // gui data len sever
@@ -65,7 +59,6 @@ const CreateUserModal = (props: IProps) => {
                 },
                 body: JSON.stringify(data)
             })
-
             const d = await res.json();
             // console.log("check d: ", d);
             if (d.data) {
@@ -85,12 +78,9 @@ const CreateUserModal = (props: IProps) => {
 
 
     };
-
     const onFinishFailed: FormProps['onFinishFailed'] = (errorInfo) => {
         console.log('Failed:', errorInfo);
     };
-
-
 
 
     return (

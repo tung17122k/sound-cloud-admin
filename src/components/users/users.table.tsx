@@ -94,7 +94,6 @@ const UsersTable = () => {
         message: JSON.stringify(d.message)
       })
     }
-
   };
 
   // pagination
@@ -124,7 +123,6 @@ const UsersTable = () => {
       pages: d.data.meta.pages,
       total: d.data.meta.total
     })
-
   }
 
   // table
